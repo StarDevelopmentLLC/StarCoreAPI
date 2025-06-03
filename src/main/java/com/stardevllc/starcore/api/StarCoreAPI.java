@@ -1,4 +1,4 @@
-package com.stardevllc.starcore.api.wrappers.com.stardevllc.starcore.api;
+package com.stardevllc.starcore.api;
 
 import com.stardevllc.starcore.api.wrappers.MCWrappers;
 
