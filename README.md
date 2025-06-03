@@ -1,0 +1,2 @@
+# StarCoreAPI
+API for StarCore
