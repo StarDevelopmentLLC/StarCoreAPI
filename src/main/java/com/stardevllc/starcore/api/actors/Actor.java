@@ -1,16 +1,16 @@
 package com.stardevllc.starcore.api.actors;
 
+import com.stardevllc.starcore.api.StarCoreAPI;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.function.Function;
 
 public abstract class Actor {
+    private static ActorFactory actorFactory;
+    
     public static final Map<Object, Actor> CACHE = new HashMap<>();
 
     private static Function<String, String> COLOR_FUNCTION = text -> ChatColor.translateAlternateColorCodes('&', text);
@@ -60,65 +60,43 @@ public abstract class Actor {
     public boolean isOnline() {
         return false;
     }
-
-    public static Actor create(Object object) {
-        Actor actor = CACHE.get(object);
-        if (actor != null) {
-            return actor;
+    
+    public static void setActorFactory(ActorFactory actorFactory) {
+        ActorFactory old = Actor.actorFactory;
+        Actor.actorFactory = actorFactory;
+        
+        if (old == null) {
+            StarCoreAPI.getAPI().getLogger().info("ActorFactory was set to " + Actor.actorFactory.getClass().getName());
+        } else {
+            StarCoreAPI.getAPI().getLogger().info("The ActorFactory instance was changed from " + old.getClass().getName() + " to " + Actor.actorFactory.getClass().getName());
         }
-
-        if (object instanceof Player player) {
-            actor = of(player);
-        } else if (object instanceof UUID uniqueId) {
-            actor = of(uniqueId);
-        } else if (object instanceof JavaPlugin plugin) {
-            actor = of(plugin);
-        } else if (object instanceof ConsoleCommandSender) {
-            actor = getServerActor();
-        } else if (object instanceof String str) {
-            if (str.equalsIgnoreCase("console") || str.equalsIgnoreCase("server")) {
-                actor = getServerActor();
-            }
-
-            try {
-                return of(UUID.fromString(str));
-            } catch (Exception e) {
-            }
-
-            Player player = Bukkit.getPlayer(str);
-            if (player != null) {
-                return of(player);
-            }
-
-            Plugin plugin = Bukkit.getPluginManager().getPlugin(str);
-            if (plugin != null) {
-                return of((JavaPlugin) plugin);
-            }
+    }
+    
+    private static ActorFactory getActorFactory() {
+        if (actorFactory == null) {
+            setActorFactory(new DefaultActorFactory());
         }
         
-        if (!(object instanceof Player)) {
-            CACHE.put(object, actor);
-        }
-        return actor;
+        return actorFactory;
+    }
+    
+    public static Actor create(Object object) {
+        return getActorFactory().create(object);
     }
 
     public static PlayerActor of(Player player) {
-        return new PlayerActor(player);
+        return getActorFactory().of(player);
     }
 
     public static Actor of(UUID uniqueId) {
-        if (uniqueId.equals(ServerActor.serverUUID)) {
-            return getServerActor();
-        }
-
-        return new PlayerActor(uniqueId);
+        return getActorFactory().of(uniqueId);
     }
 
     public static PluginActor of(JavaPlugin plugin) {
-        return new PluginActor(plugin);
+        return getActorFactory().of(plugin);
     }
 
     public static ServerActor getServerActor() {
-        return ServerActor.instance;
+        return getActorFactory().getServerActor();
     }
 }
