@@ -16,7 +16,12 @@ public class ServerActor extends Actor {
     public boolean isServer() {
         return true;
     }
-
+    
+    @Override
+    public boolean canSee(Actor actor) {
+        return true;
+    }
+    
     @Override
     public boolean isOnline() {
         return true;

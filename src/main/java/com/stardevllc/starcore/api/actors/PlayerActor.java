@@ -13,6 +13,17 @@ public class PlayerActor extends Actor {
         this.uniqueId = uniqueId;
     }
     
+    @Override
+    public boolean canSee(Actor actor) {
+        if (actor instanceof ServerActor || actor instanceof PluginActor) {
+            return true;
+        } else if (actor instanceof PlayerActor playerActor) {
+            return getPlayer().canSee(playerActor.getPlayer());
+        }
+        
+        return false;
+    }
+    
     public PlayerActor(Player player) {
         this.uniqueId = player.getUniqueId();
     }

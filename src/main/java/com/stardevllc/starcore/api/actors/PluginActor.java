@@ -9,7 +9,12 @@ public class PluginActor extends Actor {
     protected PluginActor(JavaPlugin plugin) {
         this.plugin = plugin;
     }
-
+    
+    @Override
+    public boolean canSee(Actor actor) {
+        return true;
+    }
+    
     public JavaPlugin getPlugin() {
         return plugin;
     }
