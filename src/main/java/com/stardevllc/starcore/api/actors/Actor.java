@@ -9,6 +9,11 @@ import java.util.*;
 import java.util.function.Function;
 
 public abstract class Actor {
+    
+    static {
+        new ActorStringConverter();
+    }
+    
     private static ActorFactory actorFactory;
     
     public static final Map<Object, Actor> CACHE = new HashMap<>();
